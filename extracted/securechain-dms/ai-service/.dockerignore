@@ -1,0 +1,54 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Test / coverage artifacts
+.coverage
+coverage.xml
+htmlcov/
+report.xml
+tests/__pycache__/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Local env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Docs / misc
+README.md
+*.md
+*.log
+
+# Local sample data / uploads (should never be baked into the image)
+uploads/
+tmp/
+samples/

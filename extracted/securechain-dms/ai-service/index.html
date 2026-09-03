@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecureChain OCR</title>
+  <style>
+    :root { color-scheme: light; font-family: Georgia, "Times New Roman", serif; color: #17211b; background: #eef1e8; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; }
+    main { width: min(760px, 100%); background: #fffdf6; border: 1px solid #cbd4c2; padding: clamp(24px, 5vw, 52px); box-shadow: 10px 10px 0 #c9d8c2; }
+    h1 { margin: 0 0 8px; font-size: clamp(2rem, 6vw, 4rem); font-weight: 400; letter-spacing: 0; }
+    p { color: #58645a; line-height: 1.5; }
+    form { margin-top: 28px; display: grid; gap: 14px; }
+    input[type=file] { width: 100%; padding: 18px; box-sizing: border-box; border: 2px dashed #8da388; background: #f5f8ef; font: inherit; }
+    label { display: grid; gap: 7px; color: #58645a; font-size: .95rem; }
+    select { width: 100%; padding: 12px; border: 1px solid #8da388; background: #fffdf6; color: #17211b; font: inherit; }
+    button { justify-self: start; border: 0; padding: 13px 20px; background: #285943; color: white; font: 600 1rem Georgia, serif; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #status { min-height: 1.5em; color: #58645a; }
+    .result { margin-top: 28px; border-top: 1px solid #cbd4c2; padding-top: 22px; }
+    .result h2 { font-size: 1.35rem; font-weight: 400; margin: 0 0 12px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #17211b; color: #f4f2e7; padding: 18px; line-height: 1.55; min-height: 90px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Document OCR</h1>
+    <p>Choose a PDF or image and the service will extract its text.</p>
+    <form id="upload-form">
+      <input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required>
+      <label for="language">OCR language
+        <select id="language" name="language">
+          <option value="auto" selected>Automatic detection</option>
+          <option value="en">English</option>
+          <option value="hi">Hindi / Devanagari</option>
+        </select>
+      </label>
+      <button id="submit" type="submit">Extract text</button>
+    </form>
+    <p id="status" role="status"></p>
+    <section id="result" class="result hidden">
+      <h2>Extracted text</h2>
+      <pre id="text"></pre>
+      <h2>Analysis</h2>
+      <pre id="analysis"></pre>
+    </section>
+  </main>
+  <script>
+    const form = document.querySelector('#upload-form');
+    const fileInput = document.querySelector('#file');
+    const languageInput = document.querySelector('#language');
+    const button = document.querySelector('#submit');
+    const status = document.querySelector('#status');
+    const result = document.querySelector('#result');
+    const text = document.querySelector('#text');
+    const analysis = document.querySelector('#analysis');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const file = fileInput.files[0];
+      if (!file) return;
+      button.disabled = true;
+      status.textContent = 'Extracting text...';
+      result.classList.add('hidden');
+      const data = new FormData();
+      data.append('file', file);
+      data.append('language', languageInput.value);
+      try {
+        const response = await fetch('/api/v1/ai/analyze-document', { method: 'POST', body: data });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || 'Upload failed.');
+        text.textContent = payload.extracted_text || 'No text could be extracted.';
+        analysis.textContent = JSON.stringify({
+          document_type: payload.document_type,
+          detected_sections: payload.detected_sections,
+          sensitivity_tier: payload.sensitivity_tier,
+          confidence_score: payload.confidence_score,
+          raw_text_char_count: payload.raw_text_char_count
+        }, null, 2);
+        status.textContent = 'Done.';
+        result.classList.remove('hidden');
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
