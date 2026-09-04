@@ -1,16 +1,14 @@
-# SecureChain DMS - AI Service (OCR + Classification)
+# SecureChain DMS — AI Service (SIH26190)
 FROM python:3.10-slim
 
 LABEL maintainer="SecureChain DMS - SIH26190"
-LABEL description="FastAPI + PaddleOCR document classification microservice"
+LABEL description="FastAPI + OCR + spaCy document classification microservice"
 
 # ---------------------------------------------------------------------------
-# CRITICAL SYSTEM DEPENDENCIES
-# libgl1 / libglib2.0-0 -> required by opencv/paddleocr's C bindings
-# poppler-utils                  -> required by pdf2image (pdftoppm/pdfinfo)
-# libgomp1                       -> required by paddlepaddle's OpenMP runtime
-# Without these the container will crash at import-time with
-# "ImportError: libGL.so.1: cannot open shared object file"
+# System dependencies
+#   libgl1 / libglib2.0-0  -> opencv / paddleocr C bindings
+#   poppler-utils          -> pdf2image (pdftoppm / pdfinfo)
+#   libgomp1               -> paddlepaddle OpenMP runtime
 # ---------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
@@ -23,10 +21,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies first to leverage Docker layer caching.
+# Install Python dependencies first (leverages Docker layer caching).
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
+
+# ---------------------------------------------------------------------------
+# Download spaCy English model.
+# Done as a separate RUN step so it is cached independently of requirements.
+# en_core_web_sm is small (~12 MB) and required for named-entity extraction.
+# ---------------------------------------------------------------------------
+RUN python -m spacy download en_core_web_sm --no-cache-dir
 
 # Copy application source.
 COPY . .

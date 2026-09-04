@@ -3,89 +3,1901 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SecureChain OCR</title>
+  <title>SecureChain DMS — AI Legal Document & Forensics Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: light; font-family: Georgia, "Times New Roman", serif; color: #17211b; background: #eef1e8; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; }
-    main { width: min(760px, 100%); background: #fffdf6; border: 1px solid #cbd4c2; padding: clamp(24px, 5vw, 52px); box-shadow: 10px 10px 0 #c9d8c2; }
-    h1 { margin: 0 0 8px; font-size: clamp(2rem, 6vw, 4rem); font-weight: 400; letter-spacing: 0; }
-    p { color: #58645a; line-height: 1.5; }
-    form { margin-top: 28px; display: grid; gap: 14px; }
-    input[type=file] { width: 100%; padding: 18px; box-sizing: border-box; border: 2px dashed #8da388; background: #f5f8ef; font: inherit; }
-    label { display: grid; gap: 7px; color: #58645a; font-size: .95rem; }
-    select { width: 100%; padding: 12px; border: 1px solid #8da388; background: #fffdf6; color: #17211b; font: inherit; }
-    button { justify-self: start; border: 0; padding: 13px 20px; background: #285943; color: white; font: 600 1rem Georgia, serif; cursor: pointer; }
-    button:disabled { opacity: .55; cursor: wait; }
-    #status { min-height: 1.5em; color: #58645a; }
-    .result { margin-top: 28px; border-top: 1px solid #cbd4c2; padding-top: 22px; }
-    .result h2 { font-size: 1.35rem; font-weight: 400; margin: 0 0 12px; }
-    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #17211b; color: #f4f2e7; padding: 18px; line-height: 1.55; min-height: 90px; }
-    .hidden { display: none; }
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-subtle: #eff6ff;
+      --primary-border: #bfdbfe;
+      --emerald-600: #059669;
+      --emerald-500: #10b981;
+      --emerald-50: #ecfdf5;
+      --emerald-border: #a7f3d0;
+      --purple-600: #7e22ce;
+      --purple-500: #9333ea;
+      --purple-50: #faf5ff;
+      --purple-border: #e9d5ff;
+      --rose-600: #e11d48;
+      --rose-500: #f43f5e;
+      --rose-50: #fff1f2;
+      --rose-border: #fecdd3;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-50: #fffbeb;
+      --amber-border: #fde68a;
+      --slate-950: #020617;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --card-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      --radius-xl: 14px;
+      --radius-lg: 10px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: #f8fafc;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.035) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.025) 0px, transparent 50%);
+      color: var(--slate-900);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px;
+      line-height: 1.4;
+    }
+
+    .app-container {
+      width: min(1360px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Top Navbar */
+    .top-nav {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--card-shadow);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, #2563eb, #7e22ce);
+      color: #ffffff;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.01em;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--slate-500);
+      font-weight: 600;
+    }
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid #c7d2fe;
+    }
+
+    .banner {
+      background: #eff6ff;
+      border: 1px solid var(--primary-border);
+      color: #1e40af;
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: 0.80rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #3b82f6;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Upload Form Card */
+    .upload-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      padding: 14px 18px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.25s ease;
+    }
+    .upload-card.collapsed {
+      padding: 8px 16px;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      transition: all 0.25s ease;
+    }
+    @media (max-width: 768px) {
+      .upload-grid { grid-template-columns: 1fr; }
+    }
+
+    .upload-card.collapsed .upload-grid {
+      display: none;
+    }
+
+    .upload-box {
+      border: 2px dashed var(--slate-300);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      background: var(--slate-50);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+    }
+    .upload-box:hover, .upload-box.dragover {
+      border-color: var(--primary);
+      background: #f0f7ff;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.08);
+    }
+    .upload-box.has-file {
+      border-color: var(--emerald-500);
+      background: var(--emerald-50);
+    }
+
+    .upload-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .box-title {
+      font-weight: 800;
+      font-size: 0.86rem;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .box-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .box-tag.primary { background: #dbeafe; color: #1e40af; }
+    .box-tag.supplementary { background: #fef3c7; color: #92400e; }
+
+    .file-input-hidden {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .dropzone-label {
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--slate-600);
+      pointer-events: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upload-box.has-file .dropzone-label {
+      background: #ffffff;
+      border-color: var(--emerald-border);
+      color: #166534;
+      font-weight: 700;
+    }
+    .btn-clear-file {
+      position: relative;
+      z-index: 20;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-clear-file:hover {
+      background: #fecdd3;
+    }
+
+    /* Collapsed Bar View */
+    .collapsed-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      width: 100%;
+    }
+    .upload-card.collapsed .collapsed-bar {
+      display: flex;
+    }
+    .collapsed-files {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--slate-700);
+    }
+    .file-chip.has {
+      background: var(--emerald-50);
+      border-color: var(--emerald-border);
+      color: #166534;
+    }
+
+    .form-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid var(--slate-100);
+    }
+    .upload-card.collapsed .form-bottom {
+      display: none;
+    }
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.80rem;
+      font-weight: 700;
+      color: var(--slate-700);
+    }
+    select {
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-300);
+      background: #ffffff;
+      font: inherit;
+      font-size: 0.80rem;
+      color: var(--slate-800);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button[type=submit] {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.22);
+    }
+    button[type=submit]:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
+      transform: translateY(-1px);
+    }
+    button[type=submit]:disabled {
+      background: var(--slate-400);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-reset, .btn-reupload {
+      background: var(--slate-100);
+      color: var(--slate-700);
+      border: 1px solid var(--slate-300);
+      padding: 7px 12px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .btn-reset:hover, .btn-reupload:hover {
+      background: var(--slate-200);
+      color: var(--slate-900);
+    }
+
+    #status {
+      font-weight: 700;
+      font-size: 0.84rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+    }
+    #status.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    #status.error { background: #fef2f2; border: 1px solid #fecdd3; color: #991b1b; }
+    #status.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+
+    .hidden { display: none !important; }
+
+    /* =========================================================
+       Results Workspace (Two-Column Fit-to-Display Layout)
+       ========================================================= */
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 1080px) {
+      .workspace-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Left Column: Document Preview Panel */
+    .preview-panel {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      padding: 12px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: sticky;
+      top: 12px;
+      max-height: calc(100vh - 24px);
+    }
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .preview-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-tabs {
+      display: flex;
+      gap: 3px;
+      background: var(--slate-100);
+      padding: 2px;
+      border-radius: var(--radius-sm);
+    }
+    .btn-prev-tab {
+      background: transparent;
+      border: none;
+      font-size: 0.70rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--slate-600);
+      transition: all 0.15s;
+    }
+    .btn-prev-tab.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      font-weight: 800;
+    }
+
+    /* Preview Controls Bar */
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      color: var(--slate-600);
+    }
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-tool {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      color: var(--slate-700);
+      font-size: 0.70rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn-tool:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+      border-color: var(--slate-300);
+    }
+
+    /* Document Viewport (Strict Fit to Display) */
+    .preview-viewport {
+      width: 100%;
+      height: clamp(340px, 58vh, 520px);
+      background: #0f172a;
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: height 0.2s ease;
+    }
+    .preview-viewport.height-compact { height: 320px; }
+    .preview-viewport.height-normal { height: clamp(340px, 58vh, 520px); }
+    .preview-viewport.height-large { height: 640px; }
+
+    .preview-viewport iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #ffffff;
+      display: block;
+    }
+    .preview-img-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 8px;
+    }
+    .preview-viewport img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+      border-radius: 4px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center center;
+    }
+    .preview-meta {
+      font-size: 0.72rem;
+      color: var(--slate-500);
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--slate-100);
+      padding-top: 6px;
+    }
+
+    /* Right Column: Intelligence & Extraction Tabs */
+    .intel-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    /* Top Summary Bar */
+    .summary-strip {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      padding: 10px 16px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .summary-info-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .summary-meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .summary-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .summary-val {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--slate-800);
+    }
+
+    .verdict-pill {
+      font-size: 0.80rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .verdict-pill.ai-synthetic {
+      background: var(--purple-600);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(126, 34, 206, 0.22);
+    }
+    .verdict-pill.forgery {
+      background: var(--rose-600);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(220, 38, 38, 0.22);
+    }
+    .verdict-pill.genuine {
+      background: var(--emerald-600);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(5, 150, 105, 0.20);
+    }
+
+    .tier-badge {
+      font-size: 0.70rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .tier-HIGH { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .tier-MEDIUM { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .tier-LOW { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+    /* Interactive Tab Navigation */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      box-shadow: var(--card-shadow);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+    .tab-btn.active {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary-border);
+      font-weight: 800;
+    }
+
+    /* Tab Content Cards (Fit-to-Display Scrollable) */
+    .tab-content {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: clamp(400px, calc(100vh - 240px), 700px);
+      overflow-y: auto;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid var(--slate-100);
+      padding-bottom: 10px;
+    }
+    .tab-card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Structured Field Grid */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .field-item {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
+    }
+    .field-item.full-width {
+      grid-column: 1 / -1;
+    }
+    .field-item.highlight-address {
+      border-left: 3px solid var(--primary);
+      background: #f8faff;
+    }
+    .field-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .field-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--slate-500);
+    }
+    .btn-field-copy {
+      background: transparent;
+      border: none;
+      color: var(--slate-400);
+      cursor: pointer;
+      font-size: 0.68rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    .btn-field-copy:hover {
+      background: var(--slate-200);
+      color: var(--slate-800);
+    }
+    .field-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      word-break: break-word;
+      line-height: 1.35;
+    }
+    .field-value.empty {
+      color: var(--slate-400);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* Legal Sections Tags */
+    .section-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 2px;
+    }
+    .section-pill {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 0.74rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    /* Forensic Proof Boxes */
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+    }
+    .proof-box {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+    }
+    .proof-box-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+    }
+    .proof-box-val {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--slate-800);
+      font-family: var(--font-mono);
+    }
+
+    .worm-tag-banner {
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.80rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .worm-tag-banner.alert { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+    .worm-tag-banner.clean { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+
+    .bullet-list {
+      margin: 4px 0 0;
+      padding-left: 18px;
+      font-size: 0.84rem;
+      color: var(--slate-800);
+    }
+    .bullet-list li { margin-bottom: 3px; }
+    .discrepancy-box {
+      padding: 8px 12px;
+      background: #fff1f2;
+      border-left: 3px solid #e11d48;
+      border-radius: var(--radius-sm);
+      color: #9f1239;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .corrob-status {
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .corrob-status.corroborated { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .corrob-status.discrepancy { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .corrob-status.partial { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    .btn-copy {
+      background: var(--slate-100);
+      border: 1px solid var(--slate-300);
+      color: var(--slate-700);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-copy:hover {
+      background: var(--slate-200);
+      color: var(--slate-900);
+    }
+
+    pre {
+      margin: 0;
+      background: var(--slate-900);
+      color: #f8fafc;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      line-height: 1.45;
+      max-height: 380px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Modal Lightbox for High-Res Zoom inspection */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lightbox-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      width: min(1000px, 95vw);
+      height: min(85vh, 800px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .lightbox-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--slate-100);
+      border-bottom: 1px solid var(--slate-200);
+    }
+    .lightbox-body {
+      flex: 1;
+      background: #0f172a;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .lightbox-body img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .lightbox-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .btn-close-lightbox {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      font-weight: 800;
+      font-size: 0.80rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Document OCR</h1>
-    <p>Choose a PDF or image and the service will extract its text.</p>
-    <form id="upload-form">
-      <input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required>
-      <label for="language">OCR language
-        <select id="language" name="language">
-          <option value="auto" selected>Automatic detection</option>
-          <option value="en">English</option>
-          <option value="hi">Hindi / Devanagari</option>
-        </select>
-      </label>
-      <button id="submit" type="submit">Extract text</button>
-    </form>
-    <p id="status" role="status"></p>
-    <section id="result" class="result hidden">
-      <h2>Extracted text</h2>
-      <pre id="text"></pre>
-      <h2>Analysis</h2>
-      <pre id="analysis"></pre>
-    </section>
-  </main>
-  <script>
-    const form = document.querySelector('#upload-form');
-    const fileInput = document.querySelector('#file');
-    const languageInput = document.querySelector('#language');
-    const button = document.querySelector('#submit');
-    const status = document.querySelector('#status');
-    const result = document.querySelector('#result');
-    const text = document.querySelector('#text');
-    const analysis = document.querySelector('#analysis');
+  <div class="app-container">
+    <!-- Top Navbar -->
+    <header class="top-nav">
+      <div class="brand-group">
+        <div class="brand-icon">⚖️</div>
+        <div>
+          <div class="brand-title">SecureChain DMS &bull; AI Legal Document & Forensic Suite</div>
+          <div class="brand-sub">Multi-Engine OCR &bull; Member 6 AI Tampering Detection &bull; Evidentiary Corroboration</div>
+        </div>
+      </div>
+      <div class="header-badge">SIH26190 &bull; Verified Build</div>
+    </header>
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const file = fileInput.files[0];
-      if (!file) return;
-      button.disabled = true;
-      status.textContent = 'Extracting text...';
-      result.classList.add('hidden');
-      const data = new FormData();
-      data.append('file', file);
-      data.append('language', languageInput.value);
+    <div id="loadingBanner" class="banner hidden">
+      <div class="spinner"></div>
+      <div><strong>AI & OCR Models Initializing in Background:</strong> Service is ready and warm-up is in progress.</div>
+    </div>
+
+    <!-- Dual File Upload Form -->
+    <form id="uploadForm" class="upload-card">
+      
+      <!-- Collapsed Header View (when results are loaded) -->
+      <div class="collapsed-bar" id="collapsedBar">
+        <div class="collapsed-files">
+          <span class="file-chip has" id="chipFir">📁 FIR: None</span>
+          <span class="file-chip" id="chipRep">📑 Report: None</span>
+          <span class="file-chip" id="chipLang">🌐 Lang: Auto</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-reupload" onclick="toggleUploadCard(true)">📂 Change Files / Settings</button>
+          <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset All</button>
+        </div>
+      </div>
+
+      <div class="upload-grid" id="uploadGrid">
+        <!-- 1. FIR / Legal Document Dropzone -->
+        <div class="upload-box" id="firBox">
+          <input type="file" id="fileInput" name="file" class="file-input-hidden" accept="application/pdf,image/jpeg,image/png">
+          <div class="upload-box-header">
+            <div class="box-title">📁 1. FIR / Police Complaint</div>
+            <span class="box-tag primary">Primary Document</span>
+          </div>
+          <div class="dropzone-label" id="firLabel">
+            <span id="firText">Choose or drop FIR document (PDF / Image)</span>
+            <button type="button" class="btn-clear-file hidden" id="firClearBtn" onclick="clearInput('fileInput', event)">✕ Remove</button>
+          </div>
+        </div>
+
+        <!-- 2. Supplementary Report Dropzone -->
+        <div class="upload-box" id="reportBox">
+          <input type="file" id="reportInput" name="report_file" class="file-input-hidden" accept="application/pdf,image/jpeg,image/png">
+          <div class="upload-box-header">
+            <div class="box-title">📑 2. Investigation / Forensic Report</div>
+            <span class="box-tag supplementary">Supplementary</span>
+          </div>
+          <div class="dropzone-label" id="reportLabel">
+            <span id="reportText">Choose or drop Forensic Report (optional)</span>
+            <button type="button" class="btn-clear-file hidden" id="reportClearBtn" onclick="clearInput('reportInput', event)">✕ Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-bottom" id="formBottom">
+        <div class="lang-selector">
+          <label for="langSelect">OCR Language:</label>
+          <select id="langSelect" name="language">
+            <option value="auto">Auto-detect (Hindi / English / Hinglish)</option>
+            <option value="hi">Hindi (हिंदी)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn-reset" onclick="resetForm()">↺ Clear</button>
+          <button type="submit" id="submitBtn">
+            <span>⚡ Analyze & Run Forensic Verification</span>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div id="status" class="hidden"></div>
+
+    <!-- Results Workspace (Fit to Display) -->
+    <div id="results" class="workspace-layout hidden">
+
+      <!-- Left Column: Document Preview Panel -->
+      <aside class="preview-panel" id="previewPanel">
+        <div class="preview-header">
+          <div class="preview-title">👁️ Document Preview</div>
+          <div class="preview-tabs" id="previewTabs">
+            <button type="button" class="btn-prev-tab active" id="tabPrevFir" onclick="switchPreview('fir')">FIR</button>
+            <button type="button" class="btn-prev-tab" id="tabPrevRep" onclick="switchPreview('rep')">Report</button>
+          </div>
+        </div>
+
+        <!-- Viewport Fit Controls -->
+        <div class="preview-toolbar">
+          <div class="tool-group">
+            <button type="button" class="btn-tool" onclick="zoomImage(-0.15)" title="Zoom Out">🔍 -</button>
+            <span id="zoomLevelText" style="font-family:var(--font-mono); font-weight:700;">100%</span>
+            <button type="button" class="btn-tool" onclick="zoomImage(0.15)" title="Zoom In">🔍 +</button>
+            <button type="button" class="btn-tool" onclick="resetZoom()" title="Fit to Viewport">⟲ Fit</button>
+          </div>
+          <div class="tool-group">
+            <button type="button" class="btn-tool" onclick="toggleViewportHeight()" id="btnHeightToggle" title="Toggle Compact / Expanded Height">↕ Size</button>
+            <button type="button" class="btn-tool" onclick="openLightbox()" title="View in Fullscreen Lightbox">⛶ Expand</button>
+          </div>
+        </div>
+
+        <!-- Viewport -->
+        <div class="preview-viewport height-normal" id="previewViewport">
+          <div id="previewPlaceholder" style="color:var(--slate-400); font-size:0.80rem; text-align:center; padding:16px;">No document selected</div>
+          <iframe id="docPreviewFrame" class="hidden"></iframe>
+          <div id="previewImgWrapper" class="preview-img-container hidden">
+            <img id="docPreviewImg" alt="Document Preview">
+          </div>
+        </div>
+        
+        <div class="preview-meta">
+          <span id="prevFileName">Document: -</span>
+          <span id="prevFileSize">-</span>
+        </div>
+      </aside>
+
+      <!-- Right Column: Results & Forensics Center -->
+      <section class="intel-panel">
+        
+        <!-- Summary Strip -->
+        <div class="summary-strip">
+          <div class="summary-info-group">
+            <div class="summary-meta-item">
+              <span class="summary-label">Document Category</span>
+              <span class="summary-val" id="sumDocType">FIR</span>
+            </div>
+            <div class="summary-meta-item">
+              <span class="summary-label">Sensitivity Tier</span>
+              <div style="margin-top:2px;"><span id="tierBadge" class="tier-badge tier-HIGH">HIGH</span></div>
+            </div>
+            <div class="summary-meta-item">
+              <span class="summary-label">Blockchain Quorum</span>
+              <span class="summary-val" id="quorumText">3 of 5 Approvers</span>
+            </div>
+            <div class="summary-meta-item">
+              <span class="summary-label">OCR Language</span>
+              <span class="summary-val" id="langText">English</span>
+            </div>
+          </div>
+          <div id="forensicVerdictPill" class="verdict-pill genuine">GENUINE</div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="showTab('tab-identity')">👤 1. Identity & Details</button>
+          <button class="tab-btn" onclick="showTab('tab-forensics')">🛡️ 2. Member 6 Forensics</button>
+          <button class="tab-btn hidden" id="btnTabReport" onclick="showTab('tab-report')">🩺 3. Medical Report</button>
+          <button class="tab-btn hidden" id="btnTabCorrob" onclick="showTab('tab-corrob')">⚡ 4. Corroboration</button>
+          <button class="tab-btn" onclick="showTab('tab-ocr')">📄 Extracted Text</button>
+          <button class="tab-btn" onclick="showTab('tab-json')">🔍 JSON Payload</button>
+        </div>
+
+        <!-- Tab 1: Primary Identity & Details -->
+        <div class="tab-content" id="tab-identity">
+          <div class="card-title-row">
+            <div class="tab-card-title">👤 Extracted Legal Identity & Complainant Details</div>
+            <button class="btn-copy" onclick="copySection('tab-identity')">📋 Copy All</button>
+          </div>
+
+          <div class="fields-grid">
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Complainant / Person Name</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fName', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fName">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Father's / Husband's Name</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fFather', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fFather">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">FIR / Case Number</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fFirNo', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fFirNo">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Police Station</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fPs', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fPs">-</div>
+            </div>
+            <div class="field-item highlight-address full-width">
+              <div class="field-header">
+                <span class="field-label">Residential Address</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fAddress', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fAddress">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Date of Incident</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fDate', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fDate">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Accused / Suspect Name</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('fAccused', this)">Copy</button>
+              </div>
+              <div class="field-value" id="fAccused">-</div>
+            </div>
+            <div class="field-item full-width">
+              <div class="field-label">Detected Legal Sections (IPC / BNS / Acts)</div>
+              <div class="section-tags" id="fSections">
+                <span class="field-value empty">None detected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Member 6 AI Forensic Analysis -->
+        <div class="tab-content hidden" id="tab-forensics">
+          <div class="card-title-row">
+            <div class="tab-card-title">🛡️ AI Forensic Pixel & Spectral Analysis (Member 6)</div>
+            <button class="btn-copy" onclick="copySection('tab-forensics')">📋 Copy Details</button>
+          </div>
+
+          <p id="forensicSummaryText" style="font-size:0.86rem; color:var(--slate-700); margin:0; font-weight:600;"></p>
+
+          <div class="proof-grid">
+            <div class="proof-box">
+              <div class="proof-box-label">Background Noise Variance</div>
+              <div class="proof-box-val" id="proofNoiseVar">-</div>
+              <div style="font-size:0.65rem; color:var(--slate-400); margin-top:2px;">Scanned >0.8 &bull; Synthetic ~0.0</div>
+            </div>
+            <div class="proof-box">
+              <div class="proof-box-label">2D FFT High-Freq Energy</div>
+              <div class="proof-box-val" id="proofFftRatio">-</div>
+              <div style="font-size:0.65rem; color:var(--slate-400); margin-top:2px;">Natural <0.18 &bull; AI Grid >0.22</div>
+            </div>
+            <div class="proof-box">
+              <div class="proof-box-label">ELA Splicing Discrepancy</div>
+              <div class="proof-box-val" id="proofElaScore">-</div>
+              <div style="font-size:0.65rem; color:var(--slate-400); margin-top:2px;">Tamper Alert if >0.35</div>
+            </div>
+            <div class="proof-box">
+              <div class="proof-box-label">Composite Forgery Score</div>
+              <div class="proof-box-val" id="proofCompositeScore">-</div>
+              <div style="font-size:0.65rem; color:var(--slate-400); margin-top:2px;">WORM lock threshold: 0.32</div>
+            </div>
+          </div>
+
+          <div id="detectedAiToolsSection" class="hidden" style="background:#f3e8ff; border:1px solid #d8b4fe; padding:8px 12px; border-radius:var(--radius-md); font-size:0.80rem; color:#6b21a8;">
+            <strong>Detected AI / Digital Generator Signatures:</strong>
+            <ul id="aiToolsList" style="margin:4px 0 0; padding-left:18px;"></ul>
+          </div>
+
+          <div id="wormAuditBanner" class="worm-tag-banner clean">
+            <span id="wormIcon">✅</span>
+            <span id="wormText">WORM Audit Log: Genuine physical scan verified. No magistrate flags attached.</span>
+          </div>
+        </div>
+
+        <!-- Tab 3: Supplementary Medical Report -->
+        <div class="tab-content hidden" id="tab-report">
+          <div class="card-title-row">
+            <div class="tab-card-title">🩺 Supplementary Medical & Forensic Findings</div>
+            <button class="btn-copy" onclick="copySection('tab-report')">📋 Copy Report</button>
+          </div>
+
+          <div class="fields-grid">
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Report Classification</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rType', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rType">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Examining Officer / Doctor</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rOfficer', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rOfficer">-</div>
+            </div>
+            <div class="field-item full-width">
+              <div class="field-header">
+                <span class="field-label">Hospital / Laboratory</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rHospital', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rHospital">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Patient / Deceased Name</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rSubject', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rSubject">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Inferred Weapon / Mechanism</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rWeapon', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rWeapon">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Medical Severity Grade</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rSeverity', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rSeverity">-</div>
+            </div>
+            <div class="field-item">
+              <div class="field-header">
+                <span class="field-label">Date of Examination</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rDate', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rDate">-</div>
+            </div>
+            <div class="field-item full-width">
+              <div class="field-label">Clinical Injury Details & Findings</div>
+              <ul id="rInjuryList" class="bullet-list" style="margin-top:4px;"></ul>
+            </div>
+            <div class="field-item full-width" id="rOpinionContainer">
+              <div class="field-header">
+                <span class="field-label">Doctor's Opinion / Cause of Death</span>
+                <button class="btn-field-copy" onclick="copyFieldValue('rOpinion', this)">Copy</button>
+              </div>
+              <div class="field-value" id="rOpinion">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Cross-Document Corroboration -->
+        <div class="tab-content hidden" id="tab-corrob">
+          <div class="card-title-row">
+            <div class="tab-card-title">⚡ Evidentiary Corroboration Matrix (FIR &harr; Report)</div>
+            <span id="corrobStatusPill" class="corrob-status corroborated">CORROBORATED</span>
+          </div>
+
+          <p id="magistrateNote" style="font-size:0.86rem; color:var(--slate-700); margin:0; font-weight:600;"></p>
+          
+          <div id="corrobPointsContainer">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--slate-500); text-transform:uppercase;">Corroborated Legal Elements:</div>
+            <ul id="corrobPointsList" class="bullet-list"></ul>
+          </div>
+
+          <div id="discrepancyBox" class="discrepancy-box hidden">
+            <div style="font-weight:800; margin-bottom:2px;">⚠️ Magistrate Evidentiary Discrepancy Alert:</div>
+            <ul id="discrepancyList" style="margin:0; padding-left:18px;"></ul>
+          </div>
+        </div>
+
+        <!-- Tab 5: Extracted OCR Text -->
+        <div class="tab-content hidden" id="tab-ocr">
+          <div class="card-title-row">
+            <div class="tab-card-title">📄 Complete Extracted OCR Text</div>
+            <button class="btn-copy" onclick="copyOcrText()">📋 Copy Text</button>
+          </div>
+          <pre><code id="ocrText"></code></pre>
+        </div>
+
+        <!-- Tab 6: Raw JSON Response -->
+        <div class="tab-content hidden" id="tab-json">
+          <div class="card-title-row">
+            <div class="tab-card-title">🔍 Raw API Response JSON</div>
+            <button class="btn-copy" onclick="copyJsonText()">📋 Copy JSON</button>
+          </div>
+          <pre><code id="rawJson"></code></pre>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Zoom/Pan Inspection -->
+  <div id="lightboxModal" class="lightbox-overlay hidden" onclick="closeLightbox(event)">
+    <div class="lightbox-card" onclick="event.stopPropagation()">
+      <div class="lightbox-header">
+        <div style="font-weight:800; font-size:0.90rem; color:var(--slate-800);" id="lightboxTitle">🔎 Document Fullscreen Inspection</div>
+        <button type="button" class="btn-close-lightbox" onclick="closeLightbox()">✕ Close</button>
+      </div>
+      <div class="lightbox-body" id="lightboxBody"></div>
+    </div>
+  </div>
+
+  <script>
+    let lastAnalysisResponse = null;
+    let firFileObj = null;
+    let repFileObj = null;
+    let currentPreviewType = 'fir';
+    let currentZoom = 1.0;
+    let currentHeightMode = 'normal'; // 'compact', 'normal', 'large'
+
+    // Check backend warm-up status
+    async function checkStatus() {
       try {
-        const response = await fetch('/api/v1/ai/analyze-document', { method: 'POST', body: data });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.detail || 'Upload failed.');
-        text.textContent = payload.extracted_text || 'No text could be extracted.';
-        analysis.textContent = JSON.stringify({
-          document_type: payload.document_type,
-          detected_sections: payload.detected_sections,
-          sensitivity_tier: payload.sensitivity_tier,
-          confidence_score: payload.confidence_score,
-          raw_text_char_count: payload.raw_text_char_count
-        }, null, 2);
-        status.textContent = 'Done.';
-        result.classList.remove('hidden');
-      } catch (error) {
-        status.textContent = error.message;
-      } finally {
-        button.disabled = false;
+        const res = await fetch('/api/v1/status');
+        if (res.ok) {
+          const data = await res.json();
+          const banner = document.getElementById('loadingBanner');
+          if (data.model_loading) {
+            banner.classList.remove('hidden');
+            setTimeout(checkStatus, 3000);
+          } else {
+            banner.classList.add('hidden');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    checkStatus();
+
+    // Format file size
+    function formatSize(bytes) {
+      if (!bytes) return '-';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // Input handlers
+    const firInput = document.getElementById('fileInput');
+    const firBox = document.getElementById('firBox');
+    const firText = document.getElementById('firText');
+    const firClear = document.getElementById('firClearBtn');
+    const chipFir = document.getElementById('chipFir');
+
+    firInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        firFileObj = e.target.files[0];
+        firBox.classList.add('has-file');
+        firText.textContent = `✓ ${firFileObj.name} (${formatSize(firFileObj.size)})`;
+        firClear.classList.remove('hidden');
+        chipFir.textContent = `📁 FIR: ${firFileObj.name}`;
+        chipFir.classList.add('has');
+        renderPreview('fir');
+      } else {
+        firFileObj = null;
+        firBox.classList.remove('has-file');
+        firText.textContent = 'Choose or drop FIR document (PDF / Image)';
+        firClear.classList.add('hidden');
+        chipFir.textContent = '📁 FIR: None';
+        chipFir.classList.remove('has');
+        if (currentPreviewType === 'fir') clearPreview();
       }
     });
+
+    const reportInput = document.getElementById('reportInput');
+    const reportBox = document.getElementById('reportBox');
+    const reportText = document.getElementById('reportText');
+    const reportClear = document.getElementById('reportClearBtn');
+    const chipRep = document.getElementById('chipRep');
+
+    reportInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        repFileObj = e.target.files[0];
+        reportBox.classList.add('has-file');
+        reportText.textContent = `✓ ${repFileObj.name} (${formatSize(repFileObj.size)})`;
+        reportClear.classList.remove('hidden');
+        chipRep.textContent = `📑 Report: ${repFileObj.name}`;
+        chipRep.classList.add('has');
+      } else {
+        repFileObj = null;
+        reportBox.classList.remove('has-file');
+        reportText.textContent = 'Choose or drop Forensic Report (optional)';
+        reportClear.classList.add('hidden');
+        chipRep.textContent = '📑 Report: None';
+        chipRep.classList.remove('has');
+        if (currentPreviewType === 'rep') clearPreview();
+      }
+    });
+
+    function clearInput(id, ev) {
+      if (ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+      const input = document.getElementById(id);
+      input.value = '';
+      input.dispatchEvent(new Event('change'));
+    }
+
+    function toggleUploadCard(expand) {
+      const card = document.getElementById('uploadForm');
+      if (expand) {
+        card.classList.remove('collapsed');
+      } else {
+        card.classList.add('collapsed');
+      }
+    }
+
+    function resetForm() {
+      clearInput('fileInput');
+      clearInput('reportInput');
+      document.getElementById('status').className = 'hidden';
+      document.getElementById('status').textContent = '';
+      document.getElementById('results').classList.add('hidden');
+      toggleUploadCard(true);
+      clearPreview();
+    }
+
+    // Document Preview rendering (Fit to Display)
+    function renderPreview(type) {
+      const file = (type === 'fir') ? firFileObj : repFileObj;
+      const frame = document.getElementById('docPreviewFrame');
+      const img = document.getElementById('docPreviewImg');
+      const imgWrapper = document.getElementById('previewImgWrapper');
+      const placeholder = document.getElementById('previewPlaceholder');
+      const nameEl = document.getElementById('prevFileName');
+      const sizeEl = document.getElementById('prevFileSize');
+
+      resetZoom();
+
+      if (!file) {
+        placeholder.classList.remove('hidden');
+        placeholder.textContent = type === 'fir' ? 'No FIR document uploaded' : 'No Supplementary Report uploaded';
+        frame.classList.add('hidden');
+        imgWrapper.classList.add('hidden');
+        frame.src = '';
+        img.src = '';
+        nameEl.textContent = 'Document: None';
+        sizeEl.textContent = '-';
+        return;
+      }
+
+      placeholder.classList.add('hidden');
+      const url = URL.createObjectURL(file);
+      nameEl.textContent = `Document: ${file.name}`;
+      sizeEl.textContent = formatSize(file.size);
+
+      if (file.type === 'application/pdf') {
+        imgWrapper.classList.add('hidden');
+        img.src = '';
+        // Add PDF fit parameters to keep display clean and bounded
+        frame.src = url + '#view=Fit&toolbar=0&navpanes=0';
+        frame.classList.remove('hidden');
+      } else {
+        frame.classList.add('hidden');
+        frame.src = '';
+        img.src = url;
+        imgWrapper.classList.remove('hidden');
+      }
+    }
+
+    function switchPreview(type) {
+      currentPreviewType = type;
+      document.getElementById('tabPrevFir').classList.toggle('active', type === 'fir');
+      document.getElementById('tabPrevRep').classList.toggle('active', type === 'rep');
+      renderPreview(type);
+    }
+
+    function clearPreview() {
+      const frame = document.getElementById('docPreviewFrame');
+      const img = document.getElementById('docPreviewImg');
+      const imgWrapper = document.getElementById('previewImgWrapper');
+      const placeholder = document.getElementById('previewPlaceholder');
+      frame.src = '';
+      img.src = '';
+      frame.classList.add('hidden');
+      imgWrapper.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+      placeholder.textContent = 'No document selected';
+      document.getElementById('prevFileName').textContent = 'Document: -';
+      document.getElementById('prevFileSize').textContent = '-';
+      resetZoom();
+    }
+
+    // Zoom and Fit Controls
+    function zoomImage(delta) {
+      const img = document.getElementById('docPreviewImg');
+      currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 3.0);
+      img.style.transform = `scale(${currentZoom})`;
+      document.getElementById('zoomLevelText').textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function resetZoom() {
+      currentZoom = 1.0;
+      const img = document.getElementById('docPreviewImg');
+      if (img) img.style.transform = 'scale(1)';
+      document.getElementById('zoomLevelText').textContent = '100%';
+    }
+
+    function toggleViewportHeight() {
+      const vp = document.getElementById('previewViewport');
+      if (currentHeightMode === 'normal') {
+        currentHeightMode = 'large';
+        vp.className = 'preview-viewport height-large';
+      } else if (currentHeightMode === 'large') {
+        currentHeightMode = 'compact';
+        vp.className = 'preview-viewport height-compact';
+      } else {
+        currentHeightMode = 'normal';
+        vp.className = 'preview-viewport height-normal';
+      }
+    }
+
+    // Lightbox Modal
+    function openLightbox() {
+      const file = (currentPreviewType === 'fir') ? firFileObj : repFileObj;
+      if (!file) return;
+
+      const modal = document.getElementById('lightboxModal');
+      const body = document.getElementById('lightboxBody');
+      const title = document.getElementById('lightboxTitle');
+      title.textContent = `🔎 ${file.name} — Fullscreen Inspection`;
+      body.innerHTML = '';
+
+      const url = URL.createObjectURL(file);
+      if (file.type === 'application/pdf') {
+        const frame = document.createElement('iframe');
+        frame.src = url;
+        body.appendChild(frame);
+      } else {
+        const img = document.createElement('img');
+        img.src = url;
+        body.appendChild(img);
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeLightbox(e) {
+      if (e && e.target !== e.currentTarget && !e.target.classList.contains('btn-close-lightbox')) return;
+      document.getElementById('lightboxModal').classList.add('hidden');
+      document.getElementById('lightboxBody').innerHTML = '';
+    }
+
+    // Tab switcher
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const activeTab = document.getElementById(tabId);
+      if (activeTab) activeTab.classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    // Handle Form Submit
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusDiv = document.getElementById('status');
+      const submitBtn = document.getElementById('submitBtn');
+      const resultsDiv = document.getElementById('results');
+
+      const firFile = document.getElementById('fileInput').files[0];
+      const repFile = document.getElementById('reportInput').files[0];
+      const lang = document.getElementById('langSelect').value;
+
+      if (!firFile && !repFile) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = '❌ Please select at least one document (FIR or Supplementary Report) to analyze.';
+        statusDiv.classList.remove('hidden');
+        return;
+      }
+
+      statusDiv.className = 'loading';
+      statusDiv.innerHTML = '<span class="spinner"></span> Running Multi-Engine OCR, Member 6 AI Forensics, and Structured Extraction...';
+      statusDiv.classList.remove('hidden');
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      if (firFile) formData.append('file', firFile);
+      if (repFile) formData.append('report_file', repFile);
+      formData.append('language', lang);
+
+      const endpoint = (!firFile && repFile) ? '/api/v1/ai/analyze-report' : '/api/v1/ai/analyze-document';
+      if (!firFile && repFile) {
+        formData.delete('report_file');
+        formData.append('report_file', repFile);
+      }
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({ detail: 'Analysis failed' }));
+          throw new Error(err.detail || `Server returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        lastAnalysisResponse = data;
+        renderResults(data);
+
+        statusDiv.className = 'success';
+        statusDiv.textContent = '✅ Analysis & AI Forensic Verification Completed Successfully!';
+        resultsDiv.classList.remove('hidden');
+
+        // Automatically collapse the upload card to bring workspace into single-screen fit
+        toggleUploadCard(false);
+        document.getElementById('chipLang').textContent = `🌐 Lang: ${lang}`;
+
+        switchPreview(firFile ? 'fir' : 'rep');
+        showTab('tab-identity');
+
+        // Smooth scroll to workspace
+        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = `❌ Error: ${err.message}`;
+        resultsDiv.classList.add('hidden');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    function setFieldValue(id, val) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (val && String(val).trim().length > 0) {
+        el.textContent = String(val).trim();
+        el.classList.remove('empty');
+      } else {
+        el.textContent = 'Not specified';
+        el.classList.add('empty');
+      }
+    }
+
+    function renderResults(data) {
+      // Summary Strip
+      document.getElementById('sumDocType').textContent = data.document_type || 'FIR';
+      const tierBadge = document.getElementById('tierBadge');
+      tierBadge.textContent = data.sensitivity_tier || 'HIGH';
+      tierBadge.className = `tier-badge tier-${data.sensitivity_tier || 'HIGH'}`;
+      
+      const quorum = data.recommended_quorum || {};
+      document.getElementById('quorumText').textContent = `${quorum.required || 1} of ${quorum.pool_size || 1} Approvers`;
+      document.getElementById('langText').textContent = data.ocr_language_used || 'English';
+
+      // 1. AI Forensic & AI-Generation Analysis (Member 6)
+      const forensic = data.forensic_analysis || {};
+      const vPill = document.getElementById('forensicVerdictPill');
+      const summaryText = document.getElementById('forensicSummaryText');
+      const wormBanner = document.getElementById('wormAuditBanner');
+      const wormIcon = document.getElementById('wormIcon');
+      const wormText = document.getElementById('wormText');
+
+      summaryText.textContent = forensic.forensic_summary || 'Analysis complete.';
+
+      const proofs = forensic.forensic_proof_details || {};
+      document.getElementById('proofNoiseVar').textContent = proofs.background_noise_variance !== undefined ? `${proofs.background_noise_variance}` : '-';
+      document.getElementById('proofFftRatio').textContent = proofs.fft_high_frequency_ratio !== undefined ? `${(proofs.fft_high_frequency_ratio * 100).toFixed(1)}%` : '-';
+      document.getElementById('proofElaScore').textContent = proofs.ela_error_discrepancy !== undefined ? `${proofs.ela_error_discrepancy}` : '-';
+      document.getElementById('proofCompositeScore').textContent = `${(forensic.forgery_score || 0).toFixed(2)}`;
+
+      // Detected AI Tools list
+      const aiToolsSec = document.getElementById('detectedAiToolsSection');
+      const aiToolsList = document.getElementById('aiToolsList');
+      aiToolsList.innerHTML = '';
+      if (forensic.detected_ai_tools && forensic.detected_ai_tools.length > 0) {
+        forensic.detected_ai_tools.forEach(t => {
+          const li = document.createElement('li');
+          li.textContent = t;
+          aiToolsList.appendChild(li);
+        });
+        aiToolsSec.classList.remove('hidden');
+      } else {
+        aiToolsSec.classList.add('hidden');
+      }
+
+      // Verdict & styling
+      vPill.className = 'verdict-pill';
+      if (forensic.is_ai_generated || forensic.forgery_verdict === 'AI-GENERATED / SYNTHETIC') {
+        vPill.classList.add('ai-synthetic');
+        vPill.innerHTML = '🤖 AI-GENERATED / SYNTHETIC';
+      } else if (forensic.forgery_verdict === 'SUSPECTED FORGERY') {
+        vPill.classList.add('forgery');
+        vPill.innerHTML = '⚠️ SUSPECTED FORGERY';
+      } else {
+        vPill.classList.add('genuine');
+        vPill.innerHTML = '✅ GENUINE SCANNED EVIDENCE';
+      }
+
+      // WORM Tag Banner
+      if (forensic.worm_audit_flags && forensic.worm_audit_flags.length > 0) {
+        wormBanner.className = 'worm-tag-banner alert';
+        wormIcon.textContent = '🔒🚨';
+        wormText.textContent = `WORM Audit Log Tagged: [${forensic.worm_audit_flags.join(', ')}] — Flagged for Magistrate Inspection.`;
+      } else {
+        wormBanner.className = 'worm-tag-banner clean';
+        wormIcon.textContent = '✅';
+        wormText.textContent = 'WORM Audit Log: Genuine physical scan verified. No magistrate flags attached.';
+      }
+
+      // 2. Cross-Document Corroboration Matrix
+      const btnTabCorrob = document.getElementById('btnTabCorrob');
+      if (data.cross_corroboration && data.cross_corroboration.has_dual_documents) {
+        btnTabCorrob.classList.remove('hidden');
+        const c = data.cross_corroboration;
+        const statusPill = document.getElementById('corrobStatusPill');
+        statusPill.className = 'corrob-status';
+        
+        if (c.corroboration_status === 'CORROBORATED') {
+          statusPill.classList.add('corroborated');
+          statusPill.textContent = '✅ CORROBORATED';
+        } else if (c.corroboration_status === 'CONTRADICTION_ALERT') {
+          statusPill.classList.add('discrepancy');
+          statusPill.textContent = '🚨 CONTRADICTION ALERT';
+        } else {
+          statusPill.classList.add('partial');
+          statusPill.textContent = '⚠️ PARTIAL CORROBORATION';
+        }
+
+        document.getElementById('magistrateNote').textContent = c.magistrate_evidentiary_note || '';
+
+        const ptsList = document.getElementById('corrobPointsList');
+        ptsList.innerHTML = '';
+        (c.corroborated_points || []).forEach(pt => {
+          const li = document.createElement('li');
+          li.textContent = pt;
+          ptsList.appendChild(li);
+        });
+
+        const discBox = document.getElementById('discrepancyBox');
+        const discList = document.getElementById('discrepancyList');
+        discList.innerHTML = '';
+        if (c.discrepancy_alerts && c.discrepancy_alerts.length > 0) {
+          discBox.classList.remove('hidden');
+          c.discrepancy_alerts.forEach(d => {
+            const li = document.createElement('li');
+            li.textContent = d;
+            discList.appendChild(li);
+          });
+        } else {
+          discBox.classList.add('hidden');
+        }
+      } else {
+        btnTabCorrob.classList.add('hidden');
+      }
+
+      // 3. Primary FIR Structured Fields
+      const fields = data.structured_fields || {};
+      setFieldValue('fName', fields.name);
+      setFieldValue('fFather', fields.father_name);
+      setFieldValue('fAddress', fields.address);
+      setFieldValue('fFirNo', fields.fir_number);
+      setFieldValue('fPs', fields.police_station);
+      setFieldValue('fDate', fields.date_of_incident);
+      setFieldValue('fAccused', fields.accused_name);
+
+      const secContainer = document.getElementById('fSections');
+      secContainer.innerHTML = '';
+      if (data.detected_sections && data.detected_sections.length > 0) {
+        data.detected_sections.forEach(sec => {
+          const pill = document.createElement('span');
+          pill.className = 'section-pill';
+          pill.textContent = sec;
+          secContainer.appendChild(pill);
+        });
+      } else {
+        secContainer.innerHTML = '<span class="field-value empty">None detected</span>';
+      }
+
+      // 4. Supplementary Report Card
+      const btnTabReport = document.getElementById('btnTabReport');
+      if (data.report_fields && (data.report_fields.report_type || data.report_fields.examining_officer || (data.report_fields.injury_findings && data.report_fields.injury_findings.length > 0))) {
+        btnTabReport.classList.remove('hidden');
+        const r = data.report_fields;
+        setFieldValue('rType', r.report_type);
+        setFieldValue('rOfficer', r.examining_officer);
+        setFieldValue('rHospital', r.hospital_or_lab);
+        setFieldValue('rSubject', r.subject_name);
+        setFieldValue('rWeapon', r.weapon_inferred);
+        setFieldValue('rSeverity', r.severity_grade);
+        setFieldValue('rDate', r.date_of_examination);
+        setFieldValue('rOpinion', r.cause_of_death_or_opinion);
+
+        const injList = document.getElementById('rInjuryList');
+        injList.innerHTML = '';
+        if (r.injury_findings && r.injury_findings.length > 0) {
+          r.injury_findings.forEach(inj => {
+            const li = document.createElement('li');
+            li.textContent = inj;
+            injList.appendChild(li);
+          });
+        } else {
+          injList.innerHTML = '<li style="color:var(--slate-400); font-style:italic;">No distinct injuries extracted</li>';
+        }
+      } else {
+        btnTabReport.classList.add('hidden');
+      }
+
+      // 5. Text & JSON
+      document.getElementById('ocrText').textContent = data.extracted_text || 'No text extracted.';
+      document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function copyFieldValue(elementId, btn) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.textContent;
+      if (!text || text === 'Not specified') return;
+      navigator.clipboard.writeText(text);
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Copied';
+      btn.style.color = '#10b981';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.color = '';
+      }, 1500);
+    }
+
+    function copyOcrText() {
+      const text = document.getElementById('ocrText').textContent;
+      navigator.clipboard.writeText(text);
+      alert('Extracted OCR text copied to clipboard!');
+    }
+
+    function copyJsonText() {
+      const text = document.getElementById('rawJson').textContent;
+      navigator.clipboard.writeText(text);
+      alert('Raw JSON response copied to clipboard!');
+    }
+
+    function copySection(cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      navigator.clipboard.writeText(card.innerText);
+      alert('Section details copied to clipboard!');
+    }
   </script>
 </body>
 </html>

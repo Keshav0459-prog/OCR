@@ -1,43 +1,28 @@
-"""
-SecureChain DMS - Integration Test Suite
-=========================================
-
-HOW TO RUN
-----------
-From the `ai-service/` directory, with dependencies installed
-(`pip install -r requirements.txt`):
-
-    pytest tests/ -v \
-        --cov=. \
-        --cov-report=term-missing \
-        --cov-report=xml:coverage.xml \
-        --junitxml=report.xml
-
-This mirrors exactly what the GitLab CI `test:pytest` job runs, so a green
-local run should also be green in the pipeline. The `coverage.xml` (Cobertura
-format) and `report.xml` (JUnit format) are picked up by the GitLab CI
-"Tests" and "Coverage" tabs automatically.
-
-Quick run without coverage:
-
-    pytest tests/ -v
-
-SCOPE NOTE
-----------
-Test 1 exercises the real `ai-service` FastAPI app (main.py) via a mocked
-OCR layer, so the suite never depends on the actual PaddleOCR model being
-downloaded in CI (keeping the pipeline fast and deterministic).
-
-Tests 2-4 exercise the maker-checker / quorum *state machine* rules that
-govern the document-edit approval workflow across the wider SecureChain DMS
-platform (Node.js backend + blockchain anchor layer). Since that service
-lives in a separate codebase, this suite includes a small, self-contained
-reference implementation (`ApprovalWorkflow`) that encodes the exact rules
-specified in the SIH26190 governance policy. This lets the rules be
-regression-tested here and gives the backend team an executable spec to
-port/import directly into the Node.js service (or call via a shared
-contract test) as that codebase matures.
-"""
+# -*- coding: utf-8 -*-
+# SecureChain DMS - Integration Test Suite
+#
+# HOW TO RUN
+# ----------
+# From the ai-service/ directory, with dependencies installed
+# (pip install -r requirements.txt):
+#
+#     pytest tests/ -v \
+#         --cov=. \
+#         --cov-report=term-missing \
+#         --cov-report=xml:coverage.xml \
+#         --junitxml=report.xml
+#
+# This mirrors exactly what the GitLab CI test:pytest job runs.
+# Quick run without coverage:
+#     pytest tests/ -v
+#
+# SCOPE NOTE
+# ----------
+# Test 1  — AI classification (OCR layer is mocked for speed).
+# Test 2  — Self-approval / maker-checker rule.
+# Test 3  — Instant-flagging rule.
+# Test 4  — 3-of-5 quorum state machine.
+# Test 5  — spaCy entity extraction (Member 6 AI layer).
 
 from __future__ import annotations
 
@@ -448,4 +433,142 @@ class TestQuorumThreshold:
         assert ai_main.QUORUM_MATRIX["HIGH"] == {"required": 3, "pool_size": 5}
         assert ai_main.QUORUM_MATRIX["MEDIUM"] == {"required": 2, "pool_size": 3}
         assert ai_main.QUORUM_MATRIX["LOW"] == {"required": 1, "pool_size": 1}
-        
+
+
+# ---------------------------------------------------------------------------
+# TEST 5 — spaCy Entity Extraction (Member 6 AI layer)
+# ---------------------------------------------------------------------------
+
+class TestSpacyEntityExtraction:
+    """
+    Validate that the spaCy NER layer correctly extracts named entities from
+    English OCR text and degrades gracefully when spaCy is unavailable.
+    These tests use the real spaCy model (en_core_web_sm) when available,
+    making them genuine integration tests for the AI layer.
+    """
+
+    def test_extract_entities_returns_expected_structure(self):
+        """extract_entities_with_spacy must always return the four canonical keys."""
+        result = ai_main.extract_entities_with_spacy("John Smith filed the report on 1 January 2024.")
+        assert isinstance(result, dict)
+        assert set(result.keys()) == {"persons", "organizations", "dates", "locations"}
+        for v in result.values():
+            assert isinstance(v, list)
+
+    def test_extracts_person_names_from_english_text(self):
+        """Real spaCy NER must find a person name in a simple English sentence."""
+        import spacy
+        try:
+            spacy.load("en_core_web_sm")
+        except OSError:
+            pytest.skip("en_core_web_sm not installed — skipping real-NER test.")
+
+        with (
+            patch.object(ai_main, "SPACY_AVAILABLE", True),
+            patch.object(ai_main, "SPACY_NLP", spacy.load("en_core_web_sm")),
+        ):
+            result = ai_main.extract_entities_with_spacy(
+                "Inspector Rajesh Kumar filed an FIR at Delhi Police Station."
+            )
+        # At least one person should be detected
+        assert len(result["persons"]) >= 1
+
+    def test_extracts_dates_from_legal_document_text(self):
+        """spaCy should detect date expressions in legal boilerplate."""
+        import spacy
+        try:
+            spacy.load("en_core_web_sm")
+        except OSError:
+            pytest.skip("en_core_web_sm not installed — skipping real-NER test.")
+
+        with (
+            patch.object(ai_main, "SPACY_AVAILABLE", True),
+            patch.object(ai_main, "SPACY_NLP", spacy.load("en_core_web_sm")),
+        ):
+            result = ai_main.extract_entities_with_spacy(
+                "The incident occurred on 15 March 2023 at 11:30 PM."
+            )
+        assert len(result["dates"]) >= 1
+
+    def test_returns_empty_when_spacy_unavailable(self):
+        """When SPACY_AVAILABLE is False, function must return empty lists — never raise."""
+        with patch.object(ai_main, "SPACY_AVAILABLE", False):
+            result = ai_main.extract_entities_with_spacy(
+                "John Smith filed an FIR at Delhi Police Station on 1 Jan 2024."
+            )
+        assert result == {"persons": [], "organizations": [], "dates": [], "locations": []}
+
+    def test_returns_empty_for_blank_text(self):
+        """Empty / whitespace-only input must return empty entity lists."""
+        result = ai_main.extract_entities_with_spacy("   ")
+        assert result == {"persons": [], "organizations": [], "dates": [], "locations": []}
+
+    def test_no_duplicate_entities(self):
+        """Repeated entity mentions must be de-duplicated."""
+        import spacy
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            pytest.skip("en_core_web_sm not installed.")
+
+        text = "John Smith and John Smith were both present. John Smith gave a statement."
+        with (
+            patch.object(ai_main, "SPACY_AVAILABLE", True),
+            patch.object(ai_main, "SPACY_NLP", nlp),
+        ):
+            result = ai_main.extract_entities_with_spacy(text)
+        persons = result["persons"]
+        assert len(persons) == len(set(p.lower() for p in persons)), "Duplicate persons detected"
+
+    def test_analyze_endpoint_includes_entities_field_when_spacy_ready(
+        self, mock_ocr_text, tiny_png_bytes
+    ):
+        """
+        End-to-end: POST /api/v1/ai/analyze-document must include
+        'extracted_entities' with the correct structure when spaCy is available.
+        """
+        import spacy
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            pytest.skip("en_core_web_sm not installed.")
+
+        ocr_text = "Inspector Rajesh Kumar filed a Witness Statement under Section 161 CrPC on 10 April 2024."
+
+        with (
+            mock_ocr_text(ocr_text, "en"),
+            patch.object(ai_main, "SPACY_AVAILABLE", True),
+            patch.object(ai_main, "SPACY_NLP", nlp),
+        ):
+            response = client.post(
+                "/api/v1/ai/analyze-document",
+                files={"file": ("statement.png", tiny_png_bytes, "image/png")},
+            )
+
+        assert response.status_code == 200
+        body = response.json()
+        assert "extracted_entities" in body
+        entities = body["extracted_entities"]
+        assert entities is not None
+        assert set(entities.keys()) == {"persons", "organizations", "dates", "locations"}
+
+    def test_analyze_endpoint_entities_null_when_spacy_unavailable(
+        self, mock_ocr_text, tiny_png_bytes
+    ):
+        """
+        When spaCy is not available, extracted_entities must be null (None)
+        in the JSON response — the endpoint must not raise.
+        """
+        ocr_text = "Inspector Sharma filed an FIR at the local police station."
+
+        with (
+            mock_ocr_text(ocr_text, "en"),
+            patch.object(ai_main, "SPACY_AVAILABLE", False),
+        ):
+            response = client.post(
+                "/api/v1/ai/analyze-document",
+                files={"file": ("fir.png", tiny_png_bytes, "image/png")},
+            )
+
+        assert response.status_code == 200
+        assert response.json()["extracted_entities"] is None
